@@ -1,22 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const menuItems = [
-  { label: "Home", number: "01" },
-  { label: "About", number: "02" },
-  { label: "Projects", number: "03" },
-  { label: "Contact", number: "04" },
+  { label: "Home", number: "01", id: "home" },
+  { label: "About", number: "02", id: "about" },
+  { label: "Projects", number: "03", id: "projects" },
+  { label: "Contact", number: "04", id: "contact" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleNavClick = (index, sectionId) => {
+    setActive(index);
+    setOpen(false);
+    
+    // Smooth scroll to section
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <>
+    <div className="fixed top-0 left-0 w-full z-50 ">
       {/* ── Top Bar ── */}
-      <div className="flex justify-between items-center px-6 py-4 bg-[#fefef3]">
+      <div className="flex justify-between items-center px-6 md:px-24 py-4 md:py-2 bg-[#fefef3]">
         <h2
-          className={`font-['Playfair_Display',serif] text-black font-semibold tracking-widest text-xl transition-all duration-500 ${
+          className={`font-['Playfair_Display',serif] text-black font-semibold tracking-widest text-lg md:text-xl transition-all duration-500 ${
             open ? "opacity-0 pointer-events-none" : "opacity-100"
           }`}
         >
@@ -24,7 +46,7 @@ export default function Navbar() {
         </h2>
         <button
           onClick={() => setOpen(true)}
-          className={`font-['Playfair_Display',serif] text-black font-semibold tracking-widest text-xl bg-transparent border-none cursor-pointer hover:text-[#c4917a] transition-all duration-300 ${
+          className={`font-['Playfair_Display',serif] text-black font-semibold tracking-widest text-lg md:text-xl bg-transparent border-none cursor-pointer hover:text-[#c4917a] transition-all duration-300 ${
             open ? "opacity-0 pointer-events-none" : "opacity-100"
           }`}
         >
@@ -34,7 +56,7 @@ export default function Navbar() {
 
       {/* ── Full-screen Overlay ── */}
       <div
-        className={`fixed inset-0 z-50 flex transition-all duration-500 ${
+        className={`fixed inset-0 z-50 flex flex-col md:flex-row transition-all duration-500 ${
           open
             ? "opacity-100 visible pointer-events-auto"
             : "opacity-0 invisible pointer-events-none"
@@ -42,13 +64,13 @@ export default function Navbar() {
       >
         {/* ── Left Panel ── */}
         <div
-          className={`relative w-1/2 bg-[#0e0e0b] flex flex-col justify-center px-[6%] transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          className={`relative w-full md:w-1/2 bg-[#0e0e0b] flex flex-col justify-center px-6 md:px-[6%] py-12 md:py-0 transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] ${
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           {/* Quote */}
           <p
-            className={`font-['Playfair_Display',serif] text-[#e8d5c4] font-light text-center leading-relaxed text-[clamp(2.6rem,2.2vw,2.6rem)] transition-all duration-500 delay-300 ${
+            className={`font-['Playfair_Display',serif] text-[#e8d5c4] font-light text-center leading-relaxed text-[clamp(1.5rem,5vw,2.6rem)] transition-all duration-500 delay-300 ${
               open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
@@ -60,7 +82,7 @@ export default function Navbar() {
 
           {/* Attribution */}
           <p
-            className={`font-['Playfair_Display',serif] text-[#c4917a] text-center text-3xl tracking-wide mt-5 transition-all duration-500 delay-[400ms] ${
+            className={`font-['Playfair_Display',serif] text-[#c4917a] text-center text-xl md:text-3xl tracking-wide mt-5 transition-all duration-500 delay-[400ms] ${
               open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
@@ -69,14 +91,26 @@ export default function Navbar() {
 
           {/* Arrow Buttons */}
           <div
-            className={`absolute bottom-[10%] left-0 w-full flex justify-around px-[18%] transition-opacity duration-500 delay-500 ${
+            className={`absolute bottom-[5%] md:bottom-[10%] left-0 w-full flex justify-center gap-8 md:justify-around px-4 md:px-[18%] transition-opacity duration-500 delay-500 ${
               open ? "opacity-100" : "opacity-0"
             }`}
           >
-            <button className="font-['Playfair_Display',serif] w-16 h-16 rounded-full border border-[rgba(196,145,122,0.4)] text-[#c4917a] flex items-center justify-center hover:border-[#c4917a] hover:bg-[rgba(196,145,122,0.08)] transition-all duration-300 cursor-pointer bg-transparent text-xl">
+            <button 
+              onClick={() => {
+                const prevIndex = active === 0 ? menuItems.length - 1 : active - 1;
+                handleNavClick(prevIndex, menuItems[prevIndex].id);
+              }}
+              className="font-['Playfair_Display',serif] w-12 h-12 md:w-16 md:h-16 rounded-full border border-[rgba(196,145,122,0.4)] text-[#c4917a] flex items-center justify-center hover:border-[#c4917a] hover:bg-[rgba(196,145,122,0.08)] transition-all duration-300 cursor-pointer bg-transparent text-lg md:text-xl"
+            >
               ←
             </button>
-            <button className="font-['Playfair_Display',serif] w-16 h-16 rounded-full border border-[rgba(196,145,122,0.4)] text-[#c4917a] flex items-center justify-center hover:border-[#c4917a] hover:bg-[rgba(196,145,122,0.08)] transition-all duration-300 cursor-pointer bg-transparent text-xl">
+            <button 
+              onClick={() => {
+                const nextIndex = active === menuItems.length - 1 ? 0 : active + 1;
+                handleNavClick(nextIndex, menuItems[nextIndex].id);
+              }}
+              className="font-['Playfair_Display',serif] w-12 h-12 md:w-16 md:h-16 rounded-full border border-[rgba(196,145,122,0.4)] text-[#c4917a] flex items-center justify-center hover:border-[#c4917a] hover:bg-[rgba(196,145,122,0.08)] transition-all duration-300 cursor-pointer bg-transparent text-lg md:text-xl"
+            >
               →
             </button>
           </div>
@@ -84,14 +118,14 @@ export default function Navbar() {
 
         {/* ── Right Panel ── */}
         <div
-          className={`relative w-1/2 bg-[#1a1a14] transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] delay-[40ms] ${
+          className={`relative w-full md:w-1/2 bg-[#1a1a14] min-h-[60vh] md:min-h-full transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] delay-[40ms] ${
             open ? "translate-x-0" : "translate-x-full"
           }`}
         >
           {/* Close Button */}
           <button
             onClick={() => setOpen(false)}
-            className={`font-['Playfair_Display',serif] absolute top-5 right-7 text-[#e8d5c4] text-base tracking-widest bg-transparent border-none cursor-pointer hover:text-[#c4917a] transition-all duration-300 z-10 ${
+            className={`font-['Playfair_Display',serif] absolute top-4 right-5 md:top-5 md:right-7 text-[#e8d5c4] text-sm md:text-base tracking-widest bg-transparent border-none cursor-pointer hover:text-[#c4917a] transition-all duration-300 z-10 ${
               open ? "opacity-100 delay-200" : "opacity-0"
             }`}
           >
@@ -99,12 +133,12 @@ export default function Navbar() {
           </button>
 
           {/* Custom grid layout with gaps */}
-          <div className="relative w-full h-full p-8">
+          <div className="relative w-full h-full p-4 md:p-8">
             {/* Image — top-left */}
             <div
               className={`absolute overflow-hidden transition-opacity duration-500 delay-300 ${
                 open ? "opacity-100" : "opacity-0"
-              }`}
+              } ${isMobile ? "hidden" : "block"}`}
               style={{
                 left: "0%",
                 top: "12%",
@@ -123,7 +157,7 @@ export default function Navbar() {
             <div
               className={`absolute overflow-hidden transition-opacity duration-500 delay-[380ms] ${
                 open ? "opacity-100" : "opacity-0"
-              }`}
+              } ${isMobile ? "hidden" : "block"}`}
               style={{
                 right: "-4%",
                 top: "32%",
@@ -139,15 +173,12 @@ export default function Navbar() {
             </div>
 
             {/* Nav Items - Centered */}
-            <nav className="absolute inset-0 flex flex-col items-center justify-center ps-18">
-              <div className="flex flex-col items-start gap-8 -mt-4">
-                {menuItems.map((item, i) => (
-                  <div
-                    key={item.label}
-                    onClick={() => {
-                      setActive(i);
-                      setOpen(false);
-                    }}
+            <nav className="absolute inset-0 flex flex-col items-center justify-center px-4 md:ps-18">
+              <div className="flex flex-col items-center md:items-start gap-4 md:gap-8 -mt-4">
+              {menuItems.map((item, i) => (
+              <div
+                key={item.label}
+                onClick={() => handleNavClick(i, item.id)}
                     className={`flex items-baseline gap-1.5 cursor-pointer py-0.5 group transition-all duration-500 ${
                       open
                         ? "opacity-100 translate-y-0"
@@ -158,7 +189,7 @@ export default function Navbar() {
                     }}
                   >
                     <span
-                      className={`font-['Playfair_Display',serif] font-light leading-none tracking-tight transition-colors duration-300 text-[clamp(3rem,5vw,5rem)] ${
+                      className={`font-['Playfair_Display',serif] font-light leading-none tracking-tight transition-colors duration-300 text-[clamp(2rem,8vw,5rem)] ${
                         active === i
                           ? "text-[#c4917a] italic"
                           : "text-[#7a6d64] group-hover:text-[#c4917a]"
@@ -166,7 +197,7 @@ export default function Navbar() {
                     >
                       {item.label}
                     </span>
-                    <span className="font-['Playfair_Display',serif] text-[#5c5047] text-xs tracking-wide self-start mt-2">
+                    <span className="font-['Playfair_Display',serif] text-[#5c5047] text-[10px] md:text-xs tracking-wide self-start mt-1 md:mt-2">
                       {item.number}
                     </span>
                   </div>
@@ -178,7 +209,7 @@ export default function Navbar() {
             <div
               className={`absolute overflow-hidden transition-opacity duration-500 delay-[460ms] ${
                 open ? "opacity-100" : "opacity-0"
-              }`}
+              } ${isMobile ? "hidden" : "block"}`}
               style={{
                 left: "0%",
                 bottom: "2%",
@@ -194,6 +225,7 @@ export default function Navbar() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </>
   );
